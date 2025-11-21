@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_dataflake
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: dataflake
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./dump.sql:/docker-entrypoint-initdb.d/01-dump.sql
+      - ./ddl.sql:/docker-entrypoint-initdb.d/02-ddl.sql
+      - ./dml.sql:/docker-entrypoint-initdb.d/03-dml.sql
