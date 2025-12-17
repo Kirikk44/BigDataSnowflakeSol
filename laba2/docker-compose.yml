@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres:15
+    container_name: pg_dwh
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: snowflake_db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5433:5432"
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: ch
+    environment:
+      - CLICKHOUSE_PASSWORD=1234
+    ports:
+      - "9000:9000"   # native TCP (обычно для клиента)
+      - "8123:8123"   # HTTP (jdbc over http)
+    volumes:
+      - chdata:/var/lib/clickhouse
+
+  spark:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spark
+    depends_on:
+      - postgres
+      # - clickhouse
+    environment:
+      - SPARK_MASTER=local[*]
+    volumes:
+      - ./spark:/app/spark:ro
+      - ./app/data:/app/data:ro
+    working_dir: /app
+    tty: true
+    stdin_open: true
+    ports:
+      - "4040:4040"  # Spark UI (driver UI)
+volumes:
+  pgdata:
+  chdata:
