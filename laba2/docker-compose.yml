@@ -20,8 +20,8 @@ services:
     environment:
       - CLICKHOUSE_PASSWORD=1234
     ports:
-      - "9000:9000"   # native TCP (обычно для клиента)
-      - "8123:8123"   # HTTP (jdbc over http)
+      - "9000:9000"
+      - "8123:8123"
     volumes:
       - chdata:/var/lib/clickhouse
 
@@ -32,7 +32,7 @@ services:
     container_name: spark
     depends_on:
       - postgres
-      # - clickhouse
+      - clickhouse
     environment:
       - SPARK_MASTER=local[*]
     volumes:
@@ -42,7 +42,7 @@ services:
     tty: true
     stdin_open: true
     ports:
-      - "4040:4040"  # Spark UI (driver UI)
+      - "4040:4040"
 volumes:
   pgdata:
   chdata:
